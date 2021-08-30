@@ -143,6 +143,15 @@ declare function Foo(props: { a: string }): never;
     'const x: Set<unknown> = y as Set<any>;',
     // https://github.com/typescript-eslint/typescript-eslint/issues/2109
     'const x: Map<string, string> = new Map();',
+    // XXX
+    `''.replace(/blah (\d+)/, (argMatch, argGroup1) => argGroup1);`,
+    `
+declare function f(s: string, fn: (a: string, b: number) => void): string;
+declare function f(n: number, fn: (a: Date, b: Date) => void): Date;
+
+const d1 = f('s', (aS, bN) => {});
+const d2 = f(1, (aD, bD) => {});
+    `,
   ],
   invalid: [
     ...batchedSingleLineTests({
