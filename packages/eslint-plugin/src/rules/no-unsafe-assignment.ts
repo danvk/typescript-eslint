@@ -408,35 +408,6 @@ export default util.createRule({
           ComparisonType.Contextual,
         );
       },
-      ArrowFunctionExpression(node: TSESTree.ArrowFunctionExpression): void {
-        const tsn = esTreeNodeToTSNodeMap.get(node); // "(argMatch, argGroup1) => argGroup1"
-        const callExpr = tsn.parent as ts.CallExpression; // "''.replace(/blah (d+)/, (argMatch, argGroup1) => argGroup1)"
-        // callExpr.expression = ''.replace
-        // checker.getTypeAtLocation(callExpr);  // this is the type of the return value of the call expression
-        const sig = checker.getResolvedSignature(callExpr);
-        const decl = sig?.declaration;
-        const src = decl?.getSourceFile();
-        // const t = checker.getTypeAtLocation(callExpr.expression);
-        // const decls = t.getSymbol()!.getDeclarations()!;  // how do we know which one to use?
-        // const sigs = t.getCallSignatures();  // how do you figure out which one is being used?
-        // for (const decl of decls) {
-        //   const source = decl.getSourceFile();
-        //   console.log(source.fileName, decl.getFullText());
-        // }
-        debugger;
-        // > checker.getSignatureFromDeclaration(decls[1]).resolvedReturnType === checker.getTypeAtLocation(callExpr)
-        // === true
-
-        // `''.replace(/blah (\d+)/, (argMatch, argGroup1) => argGroup1);`
-        // for (const param of node.params) {
-        //   const tsNode = esTreeNodeToTSNodeMap.get(param);
-        //   const type = checker.getTypeAtLocation(tsNode);
-        //   console.log(param, tsNode, type);
-        //   debugger;
-        // }
-      },
     };
   },
 });
-
-// ''.replace(/blah (\d+)/, (argMatch, argGroup1) => argGroup1);

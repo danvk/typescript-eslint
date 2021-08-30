@@ -59,6 +59,7 @@ import noParameterProperties from './no-parameter-properties';
 import noRedeclare from './no-redeclare';
 import noRequireImports from './no-require-imports';
 import noShadow from './no-shadow';
+import noThirdPartyAny from './no-third-party-any';
 import noThisAlias from './no-this-alias';
 import noThrowLiteral from './no-throw-literal';
 import noTypeAlias from './no-type-alias';
@@ -178,6 +179,7 @@ export default {
   'no-redeclare': noRedeclare,
   'no-require-imports': noRequireImports,
   'no-shadow': noShadow,
+  'no-third-party-any': noThirdPartyAny,
   'no-this-alias': noThisAlias,
   'no-throw-literal': noThrowLiteral,
   'no-type-alias': noTypeAlias,

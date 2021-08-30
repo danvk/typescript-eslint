@@ -145,6 +145,7 @@ declare function Foo(props: { a: string }): never;
     'const x: Map<string, string> = new Map();',
     // XXX
     `''.replace(/blah (\d+)/, (argMatch, argGroup1) => argGroup1);`,
+    `''.replace(/blah (\d+)/, (argMatch, argGroup1: any) => argGroup1);`,
     `
 declare function f(s: string, fn: (a: string, b: number) => void): string;
 declare function f(n: number, fn: (a: Date, b: Date) => void): Date;
