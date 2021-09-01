@@ -89,6 +89,7 @@ export = {
     '@typescript-eslint/no-require-imports': 'error',
     'no-shadow': 'off',
     '@typescript-eslint/no-shadow': 'error',
+    '@typescript-eslint/no-third-party-any': 'error',
     '@typescript-eslint/no-this-alias': 'error',
     'no-throw-literal': 'off',
     '@typescript-eslint/no-throw-literal': 'error',

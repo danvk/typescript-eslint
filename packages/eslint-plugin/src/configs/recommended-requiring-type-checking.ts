@@ -11,6 +11,7 @@ export = {
     'no-implied-eval': 'off',
     '@typescript-eslint/no-implied-eval': 'error',
     '@typescript-eslint/no-misused-promises': 'error',
+    '@typescript-eslint/no-third-party-any': 'error',
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
     '@typescript-eslint/no-unsafe-assignment': 'error',
     '@typescript-eslint/no-unsafe-call': 'error',
