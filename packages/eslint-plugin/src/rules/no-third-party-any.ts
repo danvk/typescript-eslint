@@ -10,7 +10,8 @@ export default util.createRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallows any types coming from third-party code (lib or @types)',
+      description:
+        'Disallows any types coming from third-party code (lib or @types)',
       category: 'Possible Errors',
       recommended: 'error',
       requiresTypeChecking: true,
@@ -25,16 +26,22 @@ export default util.createRule({
     const { program, esTreeNodeToTSNodeMap } = util.getParserServices(context);
     const checker = program.getTypeChecker();
 
-    const findContainingCallExpression = (node: ts.Node): ts.CallExpression | ts.NewExpression | null => {
+    const findContainingCallExpression = (
+      node: ts.Node,
+    ): ts.CallExpression | ts.NewExpression | null => {
       if (ts.isCallExpression(node) || ts.isNewExpression(node)) {
         return node;
       }
-      const {parent} = node;
-      return parent.kind === ts.SyntaxKind.SourceFile ? null : findContainingCallExpression(parent);
-    }
+      const { parent } = node;
+      return parent.kind === ts.SyntaxKind.SourceFile
+        ? null
+        : findContainingCallExpression(parent);
+    };
 
     return {
-      'ArrowFunctionExpression, FunctionExpression'(node: TSESTree.ArrowFunctionExpression|TSESTree.FunctionExpression): void {
+      'ArrowFunctionExpression, FunctionExpression'(
+        node: TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression,
+      ): void {
         for (const param of node.params) {
           if (param.type === AST_NODE_TYPES.TSParameterProperty) {
             continue;
@@ -43,14 +50,17 @@ export default util.createRule({
           // console.log(paramTsNode.getText(), param.typeAnnotation);
 
           if (param.typeAnnotation) {
-            continue;  // explicitly annotated parameters are OK, even if they're any.
+            continue; // explicitly annotated parameters are OK, even if they're any.
           }
 
           const paramTsNode = esTreeNodeToTSNodeMap.get(param);
 
-          const isAny = util.isAnyOrAnyArrayTypeDiscriminated(paramTsNode, checker);
+          const isAny = util.isAnyOrAnyArrayTypeDiscriminated(
+            paramTsNode,
+            checker,
+          );
           if (isAny === util.AnyType.Safe) {
-            continue;  // not an any type
+            continue; // not an any type
           }
 
           // We've got an implicit any! So where did it come from?
