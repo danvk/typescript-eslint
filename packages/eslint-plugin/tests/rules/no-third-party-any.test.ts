@@ -12,6 +12,9 @@ const ruleTester = new RuleTester({
 ruleTester.run('no-third-party-any', rule, {
   valid: [
     `''.replace(/blah (\d+)/, (argMatch, argGroup1: any) => argGroup1);`,
+    `const data = JSON.parse('{"a": 12}') as unknown;`,
+    `const data = JSON.parse('{"a": 12}') as any;`,
+    `const data: any = JSON.parse('{"a": 12}');`,
     `
 declare function f(s: string, fn: (a: string, b: number) => void): string;
 declare function f(n: number, fn: (a: Date, b: Date) => void): Date;
@@ -39,6 +42,18 @@ const d2 = f(1, (aD, bD) => {});  // this one is only OK because it's first-part
         },
       ],
     },
+    {
+      code: `const data = JSON.parse('{"a": 12}');`,
+      errors: [
+        {
+          messageId: 'assignedAny',
+          line: 1,
+          column: 7,
+          endColumn: 11,
+        }
+      ]
+    }
+    /// code: `const {data} = JSON.parse('{"a": 12}');`,
     //     {
     //       code: `
     // declare function f(s: string, fn: (a: string, b: number) => void): string;

@@ -18,6 +18,7 @@ export default util.createRule({
     },
     messages: {
       contextualAny: 'any type inferred for parameter in call expression',
+      assignedAny: 'any type assigned to variable',
     },
     schema: [],
   },
@@ -39,6 +40,37 @@ export default util.createRule({
     };
 
     return {
+      'VariableDeclarator[init != null]'(
+        node: TSESTree.VariableDeclarator,
+      ): void {
+        const init = util.nullThrows(
+          node.init,
+          util.NullThrowsReasons.MissingToken(node.type, 'init'),
+        );
+        if (node.id.typeAnnotation) {
+          return;  // explicit type annotations are OK
+        }
+
+        const idNodeTs = esTreeNodeToTSNodeMap.get(node.id);
+        const isAny = util.isAnyOrAnyArrayTypeDiscriminated(idNodeTs, checker);
+        if (isAny === util.AnyType.Safe) {
+          return;  // not an any type
+        }
+
+        const initTsNode = esTreeNodeToTSNodeMap.get(init);
+        if (ts.isCallExpression(initTsNode) || ts.isNewExpression(initTsNode)) {
+          const sig = checker.getResolvedSignature(initTsNode);
+          const decl = sig?.declaration;
+          const src = decl?.getSourceFile();
+          if (src?.fileName.match(/node_modules/)) {
+            // Gotcha!
+            context.report({
+              node: node.id,
+              messageId: 'assignedAny',
+            });
+          }
+        }
+      },
       'ArrowFunctionExpression, FunctionExpression'(
         node: TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression,
       ): void {
