@@ -50,9 +50,9 @@ const d2 = f(1, (aD, bD) => {});  // this one is only OK because it's first-part
           line: 1,
           column: 7,
           endColumn: 11,
-        }
-      ]
-    }
+        },
+      ],
+    },
     /// code: `const {data} = JSON.parse('{"a": 12}');`,
     //     {
     //       code: `
