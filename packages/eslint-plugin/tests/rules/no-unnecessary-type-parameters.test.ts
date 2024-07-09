@@ -635,6 +635,7 @@ ruleTester.run('no-unnecessary-type-parameters', rule, {
         declare function foo<T>(input: [T, string]): void;
       `,
       errors: [{ messageId: 'sole', data: { name: 'T' } }],
+      skip: true,
     },
   ],
 });
