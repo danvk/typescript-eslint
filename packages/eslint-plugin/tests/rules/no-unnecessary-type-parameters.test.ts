@@ -635,7 +635,16 @@ ruleTester.run('no-unnecessary-type-parameters', rule, {
         declare function foo<T>(input: [T, string]): void;
       `,
       errors: [{ messageId: 'sole', data: { name: 'T' } }],
-      skip: true,
+    },
+    {
+      code: `
+        declare function triple<A, B, C>(input: [A, B, C]): void;
+      `,
+      errors: [
+        { messageId: 'sole', data: { name: 'A' } },
+        { messageId: 'sole', data: { name: 'B' } },
+        { messageId: 'sole', data: { name: 'C' } },
+      ],
     },
   ],
 });
