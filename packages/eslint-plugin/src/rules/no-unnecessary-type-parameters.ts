@@ -252,10 +252,7 @@ function collectTypeParameterUsageCounts(
     else if (tsutils.isTypeReference(type)) {
       const assumeMultipleUses =
         !tsutils.isTupleType(type.target) &&
-        !(
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          (type.symbol && SINGULAR_TYPES.has(type.symbol.getName()))
-        );
+        !SINGULAR_TYPES.has(type.symbol.getName());
       for (const typeArgument of type.typeArguments ?? []) {
         visitType(typeArgument, assumeMultipleUses);
       }
