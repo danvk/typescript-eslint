@@ -180,12 +180,6 @@ ruleTester.run('no-unnecessary-type-parameters', rule, {
         return x;
       }
     `,
-    {
-      code: `
-        declare function getLength<T>(xs: readonly T[]): number;
-      `,
-      only: true,
-    },
     `
       function ItemComponent<T>(props: { item: T; onSelect: (item: T) => void }) {}
     `,
@@ -612,6 +606,19 @@ ruleTester.run('no-unnecessary-type-parameters', rule, {
     },
     {
       code: 'type Fn = <T extends string>() => `a${T}b`;',
+      errors: [{ messageId: 'sole', data: { name: 'T' } }],
+    },
+    {
+      code: `
+        declare function getLength<T>(xs: readonly T[]): number;
+      `,
+      errors: [{ messageId: 'sole', data: { name: 'T' } }],
+      // only: true,
+    },
+    {
+      code: `
+        declare function getLength<T>(xs: T[]): number;
+      `,
       errors: [{ messageId: 'sole', data: { name: 'T' } }],
     },
   ],

@@ -167,6 +167,8 @@ function countTypeParameterUsage(
   return counts;
 }
 
+const SINGULAR_TYPES = new Set(['Array', 'ReadonlyArray']);
+
 /**
  * Populates {@link foundIdentifierUsages} by the number of times each type parameter
  * appears in the given type by checking its uses through its type references.
@@ -248,8 +250,9 @@ function collectTypeParameterUsageCounts(
     // Tuple types like `[K, V]`
     // Generic type references like `Map<K, V>`
     else if (tsutils.isTupleType(type) || tsutils.isTypeReference(type)) {
+      const assumeMultipleUses = !SINGULAR_TYPES.has(type.symbol.getName());
       for (const typeArgument of type.typeArguments ?? []) {
-        visitType(typeArgument, true);
+        visitType(typeArgument, !assumeMultipleUses);
       }
     }
 
