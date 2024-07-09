@@ -180,6 +180,12 @@ ruleTester.run('no-unnecessary-type-parameters', rule, {
         return x;
       }
     `,
+    {
+      code: `
+        declare function getLength<T>(xs: readonly T[]): number;
+      `,
+      only: true,
+    },
     `
       function ItemComponent<T>(props: { item: T; onSelect: (item: T) => void }) {}
     `,
