@@ -250,9 +250,12 @@ function collectTypeParameterUsageCounts(
     // Tuple types like `[K, V]`
     // Generic type references like `Map<K, V>`
     else if (tsutils.isTupleType(type) || tsutils.isTypeReference(type)) {
-      const assumeMultipleUses = !SINGULAR_TYPES.has(type.symbol.getName());
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      const assumeMultipleUses = !(
+        type.symbol && SINGULAR_TYPES.has(type.symbol.getName())
+      );
       for (const typeArgument of type.typeArguments ?? []) {
-        visitType(typeArgument, !assumeMultipleUses);
+        visitType(typeArgument, assumeMultipleUses);
       }
     }
 
