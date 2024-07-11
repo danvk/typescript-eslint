@@ -110,13 +110,33 @@ function isSingularTypeNode(
   }
   if (ts.isTypeReferenceNode(t)) {
     const sym = checker.getSymbolAtLocation(t.typeName);
-    return SINGULAR_TYPES.has(node.typeName.name);
+    // return SINGULAR_TYPES.has(node.typeName.name);
+    return !!sym && comesFromLib(sym);
   }
   return false;
 }
 
 function isSingularType(type: ts.TypeReference): boolean {
-  return SINGULAR_TYPES.has(type.symbol.getName());
+  return comesFromLib(type.symbol);
+  // return SINGULAR_TYPES.has(type.symbol.getName());
+}
+
+function getSourceFile(node: ts.Node): ts.SourceFile | null {
+  if (ts.isSourceFile(node)) {
+    return node;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  return node.parent ? getSourceFile(node.parent) : null;
+}
+
+function comesFromLib(sym: ts.Symbol): boolean {
+  for (const decl of sym.getDeclarations() ?? []) {
+    const sourceFile = getSourceFile(decl);
+    if (sourceFile?.fileName.includes('/typescript/lib/')) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function isTypeParameterRepeatedInAST(
