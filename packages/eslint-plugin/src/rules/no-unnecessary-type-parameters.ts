@@ -6,6 +6,8 @@ import * as ts from 'typescript';
 
 import type { MakeRequired } from '../util';
 import { createRule, getParserServices } from '../util';
+import { ParserWeakMapESTreeToTSNode } from '../../../typescript-estree/src/parser-options';
+import { TSESTreeToTSNode } from '../../../typescript-estree/src/ts-estree';
 
 type NodeWithTypeParameters = MakeRequired<
   ts.SignatureDeclaration | ts.ClassLikeDeclaration,
@@ -58,7 +60,14 @@ export default createRule({
 
           // Quick path: if the type parameter is used multiple times in the AST,
           // we don't need to dip into types to know it's repeated.
-          if (isTypeParameterRepeatedInAST(esTypeParameter, scope.references)) {
+          if (
+            isTypeParameterRepeatedInAST(
+              esTypeParameter,
+              parserServices.esTreeNodeToTSNodeMap,
+              checker,
+              scope.references,
+            )
+          ) {
             continue;
           }
 
@@ -88,12 +97,22 @@ export default createRule({
 // a single use.
 const SINGULAR_TYPES = new Set(['Array', 'ReadonlyArray']);
 
-function isSingularTypeNode(node: TSESTree.Node): boolean {
-  return (
-    node.type === AST_NODE_TYPES.TSTypeReference &&
-    node.typeName.type === AST_NODE_TYPES.Identifier &&
-    SINGULAR_TYPES.has(node.typeName.name)
-  );
+function isSingularTypeNode(
+  node: TSESTree.Node,
+  checker: ts.TypeChecker,
+  t: TSESTreeToTSNode,
+): boolean {
+  if (
+    node.type !== AST_NODE_TYPES.TSTypeReference ||
+    node.typeName.type !== AST_NODE_TYPES.Identifier
+  ) {
+    return false;
+  }
+  if (ts.isTypeReferenceNode(t)) {
+    const sym = checker.getSymbolAtLocation(t.typeName);
+    return SINGULAR_TYPES.has(node.typeName.name);
+  }
+  return false;
 }
 
 function isSingularType(type: ts.TypeReference): boolean {
@@ -102,6 +121,8 @@ function isSingularType(type: ts.TypeReference): boolean {
 
 function isTypeParameterRepeatedInAST(
   node: TSESTree.TSTypeParameter,
+  esTreeNodeToTSNodeMap: ParserWeakMapESTreeToTSNode,
+  checker: ts.TypeChecker,
   references: Reference[],
 ): boolean {
   let total = 0;
@@ -133,10 +154,12 @@ function isTypeParameterRepeatedInAST(
       );
       if (
         grandparent.type === AST_NODE_TYPES.TSTypeParameterInstantiation &&
-        grandparent.params.includes(reference.identifier.parent) &&
-        !isSingularTypeNode(grandparent.parent)
+        grandparent.params.includes(reference.identifier.parent)
       ) {
-        return true;
+        const t = esTreeNodeToTSNodeMap.get(grandparent.parent);
+        if (!isSingularTypeNode(grandparent.parent, checker, t)) {
+          return true;
+        }
       }
     }
 

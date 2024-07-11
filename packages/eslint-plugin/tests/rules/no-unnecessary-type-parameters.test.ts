@@ -222,7 +222,10 @@ ruleTester.run('no-unnecessary-type-parameters', rule, {
     'declare function makeSet<K>(): [Set<K>];',
     'declare function makeSets<K>(): Set<K>[];',
     'declare function makeSets<K>(): [Set<K>][];',
-    'declare function makeMap<K, V>(): Map<K, V>;',
+    {
+      // only: true,
+      code: 'declare function makeMap<K, V>(): Map<K, V>;',
+    },
     'declare function makeMap<K, V>(): [Map<K, V>];',
     'declare function arrayOfPairs<T>(): [T, T][];',
     'declare function fetchJson<T>(url: string): Promise<T>;',
