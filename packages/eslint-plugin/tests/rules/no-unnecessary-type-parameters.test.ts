@@ -189,26 +189,6 @@ ruleTester.run('no-unnecessary-type-parameters', rule, {
         getResult: (t: T) => () => [U | undefined],
       ): () => [U | undefined];
     `,
-    `
-      function getData<T>(url: string): Promise<T | null> {
-        return Promise.resolve(null);
-      }
-    `,
-    `
-      function getData<T>(url: string): Promise<T extends null ? T : null> {
-        return Promise.resolve(null);
-      }
-    `,
-    `
-      function getData<T extends string>(url: string): Promise<\`a\${T}b\`> {
-        return Promise.resolve(null);
-      }
-    `,
-    `
-      async function getData<T>(url: string): Promise<T | null> {
-        return null;
-      }
-    `,
     'declare function get(): void;',
     'declare function get<T>(param: T[]): T;',
     'declare function box<T>(val: T): { val: T };',
@@ -218,15 +198,7 @@ ruleTester.run('no-unnecessary-type-parameters', rule, {
     'declare function example<T>(a: Set<T>, b: T[]): void;',
     'declare function example<T>(a: Map<T, T>): void;',
     'declare function example<T, U extends T>(t: T, u: U): U;',
-    'declare function makeSet<K>(): Set<K>;',
-    'declare function makeSet<K>(): [Set<K>];',
-    'declare function makeSets<K>(): Set<K>[];',
-    'declare function makeSets<K>(): [Set<K>][];',
-    'declare function makeMap<K, V>(): Map<K, V>;',
-    'declare function makeMap<K, V>(): [Map<K, V>];',
     'declare function arrayOfPairs<T>(): [T, T][];',
-    'declare function fetchJson<T>(url: string): Promise<T>;',
-    'declare function fetchJsonArray<T>(url: string): Promise<T[]>;',
     'declare function fn<T>(input: T): 0 extends 0 ? T : never;',
     'declare function useFocus<T extends HTMLOrSVGElement>(): [React.RefObject<T>];',
     `
@@ -659,6 +631,76 @@ ruleTester.run('no-unnecessary-type-parameters', rule, {
         { messageId: 'sole', data: { name: 'B' } },
         { messageId: 'sole', data: { name: 'C' } },
       ],
+    },
+    {
+      code: 'declare function makeSet<K>(): Set<K>;',
+      errors: [{ messageId: 'sole', data: { name: 'K' } }],
+    },
+    {
+      code: 'declare function makeSet<K>(): [Set<K>];',
+      errors: [{ messageId: 'sole', data: { name: 'K' } }],
+    },
+    {
+      code: 'declare function makeSets<K>(): Set<K>[];',
+      errors: [{ messageId: 'sole', data: { name: 'K' } }],
+    },
+    {
+      code: 'declare function makeSets<K>(): [Set<K>][];',
+      errors: [{ messageId: 'sole', data: { name: 'K' } }],
+    },
+    {
+      code: 'declare function makeMap<K, V>(): Map<K, V>;',
+      errors: [
+        { messageId: 'sole', data: { name: 'K' } },
+        { messageId: 'sole', data: { name: 'V' } },
+      ],
+    },
+    {
+      code: 'declare function makeMap<K, V>(): [Map<K, V>];',
+      errors: [
+        { messageId: 'sole', data: { name: 'K' } },
+        { messageId: 'sole', data: { name: 'V' } },
+      ],
+    },
+    {
+      code: `
+        function getData<T>(url: string): Promise<T | null> {
+          return Promise.resolve(null);
+        }
+      `,
+      errors: [{ messageId: 'sole', data: { name: 'T' } }],
+    },
+    {
+      code: `
+        function getData<T>(url: string): Promise<T extends null ? T : null> {
+          return Promise.resolve(null);
+        }
+      `,
+      errors: [{ messageId: 'sole', data: { name: 'T' } }],
+    },
+    {
+      code: `
+        function getData<T extends string>(url: string): Promise<\`a\${T}b\`> {
+          return Promise.resolve(null);
+        }
+      `,
+      errors: [{ messageId: 'sole', data: { name: 'T' } }],
+    },
+    {
+      code: `
+        async function getData<T>(url: string): Promise<T | null> {
+          return null;
+        }
+      `,
+      errors: [{ messageId: 'sole', data: { name: 'T' } }],
+    },
+    {
+      code: 'declare function fetchJson<T>(url: string): Promise<T>;',
+      errors: [{ messageId: 'sole', data: { name: 'T' } }],
+    },
+    {
+      code: 'declare function fetchJsonArray<T>(url: string): Promise<T[]>;',
+      errors: [{ messageId: 'sole', data: { name: 'T' } }],
     },
   ],
 });
