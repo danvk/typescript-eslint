@@ -88,6 +88,18 @@ export default createRule({
 // a single use.
 const SINGULAR_TYPES = new Set(['Array', 'ReadonlyArray']);
 
+function isSingularTypeNode(node: TSESTree.Node): boolean {
+  return (
+    node.type === AST_NODE_TYPES.TSTypeReference &&
+    node.typeName.type === AST_NODE_TYPES.Identifier &&
+    SINGULAR_TYPES.has(node.typeName.name)
+  );
+}
+
+function isSingularType(type: ts.TypeReference): boolean {
+  return SINGULAR_TYPES.has(type.symbol.getName());
+}
+
 function isTypeParameterRepeatedInAST(
   node: TSESTree.TSTypeParameter,
   references: Reference[],
@@ -122,11 +134,7 @@ function isTypeParameterRepeatedInAST(
       if (
         grandparent.type === AST_NODE_TYPES.TSTypeParameterInstantiation &&
         grandparent.params.includes(reference.identifier.parent) &&
-        !(
-          grandparent.parent.type === AST_NODE_TYPES.TSTypeReference &&
-          grandparent.parent.typeName.type === AST_NODE_TYPES.Identifier &&
-          SINGULAR_TYPES.has(grandparent.parent.typeName.name)
-        )
+        !isSingularTypeNode(grandparent.parent)
       ) {
         return true;
       }
@@ -261,8 +269,7 @@ function collectTypeParameterUsageCounts(
     else if (tsutils.isTypeReference(type)) {
       for (const typeArgument of type.typeArguments ?? []) {
         const thisAssumeMultipleUses =
-          !tsutils.isTupleType(type.target) &&
-          !SINGULAR_TYPES.has(type.symbol.getName());
+          !tsutils.isTupleType(type.target) && !isSingularType(type);
 
         visitType(typeArgument, assumeMultipleUses || thisAssumeMultipleUses);
       }
